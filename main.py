@@ -1,49 +1,34 @@
 import speech_recognition as sr
-import openai
+from openAI import openAI
+from esperaSalida import esperaSalida
 
-# Crear un objeto de reconocimiento de voz
-grabacion = sr.Recognizer()
-grabacion.energy_threshold = 4000
-
+grabador = sr.Recognizer()
+grabador.energy_threshold = 4000 # Umbral de cancelacion de ruido
 
 def app () :
-    opcion = menu()
-    while opcion == "1":
-        Recording(1,4)
-        print("\n\n")
-        opcion = menu()
+    continuar = menu()
+    while continuar == True:
+        Grabacion()
+        print("\n")
+        continuar = esperaSalida()
 
-def menu():
-    opc = input("# 1-Charlar\n# 2-Salir\n# Opcion: ")
-    return opc
-
-####################################################################################
-
-def OPENAI(pregunta):
-    # Establece tu clave de API de OpenAI
-    openai.api_key = "api-key"
-
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=pregunta,
-        max_tokens=250
-    )
-    return print("-GPT: " + response.choices[0].text)
-
-
-def Recording(min, max):
+def Grabacion():
     with sr.Microphone() as source:
         print("\n# Preparate")
-        grabacion.adjust_for_ambient_noise(source, duration=min)
-        print("# Escuchando tu peticion...")
-        recorded_audio = grabacion.listen(source, timeout=max)
+        grabador.adjust_for_ambient_noise(source) # Calibrando microfono
+        print("# Escuchando tu peticion...") 
+        audioGrabado = grabador.listen(source) # Esta grabando
 
     try:
         print("# Reconociendo la peticion...\n")
-        text = grabacion.recognize_google(recorded_audio, language="es-ES")
+        text = grabador.recognize_google(audioGrabado, language="es-AR")
         print("-Vos: " + text)
-        OPENAI(text)
+        openAI(text)
     except Exception as ex:
         print("No reconoci ninguna palabra clara")
+
+def menu():
+    entrada = input('Presione ENTER para comenzar ')
+    return entrada == ''
 
 app()
